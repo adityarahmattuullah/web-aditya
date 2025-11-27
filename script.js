@@ -3,7 +3,7 @@
 // ==========================================
 let idEdit = null;
 let dataMahasiswaCache = {}; 
-let myBarChart, myPieChart; // Variabel Chart
+let myBarChart, myPieChart; 
 
 // ==========================================
 // 1. NAVIGASI HALAMAN (SPA)
@@ -18,10 +18,37 @@ function showPage(pageId, btnElement) {
         document.querySelectorAll('.menu-btn').forEach(btn => btn.classList.remove('active'));
         btnElement.classList.add('active');
     }
+
+    // TUTUP SIDEBAR OTOMATIS DI HP SETELAH KLIK MENU
+    if (window.innerWidth < 992) {
+        document.getElementById('sidebar').classList.remove('active');
+        document.getElementById('overlay').classList.remove('active');
+    }
 }
 
 // ==========================================
-// 2. VALIDASI ANGKA (0-100)
+// 2. LOGIKA TOGGLE SIDEBAR (HP)
+// ==========================================
+const menuToggle = document.getElementById('menu-toggle');
+const sidebar = document.getElementById('sidebar');
+const overlay = document.getElementById('overlay');
+
+if(menuToggle) {
+    menuToggle.addEventListener('click', () => {
+        sidebar.classList.toggle('active');
+        overlay.classList.toggle('active');
+    });
+}
+
+if(overlay) {
+    overlay.addEventListener('click', () => {
+        sidebar.classList.remove('active');
+        overlay.classList.remove('active');
+    });
+}
+
+// ==========================================
+// 3. VALIDASI ANGKA (0-100)
 // ==========================================
 function validasiAngka(input) {
     if (input.value > 100) {
@@ -34,7 +61,7 @@ function validasiAngka(input) {
 }
 
 // ==========================================
-// 3. LOGIKA GRAFIK (CHART.JS)
+// 4. LOGIKA GRAFIK
 // ==========================================
 function initCharts() {
     const ctxBar = document.getElementById('barChart');
@@ -77,16 +104,15 @@ function updateChartData(index, value) {
 }
 
 // ==========================================
-// 4. LOGIKA UTAMA (FIREBASE)
+// 5. LOGIKA UTAMA (FIREBASE)
 // ==========================================
 auth.onAuthStateChanged((user) => {
     if (user) {
-        // --- PROFIL USER & NAVBAR ---
         db.collection('users').doc(user.uid).get().then(doc => {
             if(doc.exists) {
                 const data = doc.data();
-                document.getElementById('namaUser').innerText = data.nama; // Navbar
-                if(document.getElementById('dispNama')) document.getElementById('dispNama').innerText = data.nama; // Profil
+                document.getElementById('namaUser').innerText = data.nama;
+                if(document.getElementById('dispNama')) document.getElementById('dispNama').innerText = data.nama;
                 if(document.getElementById('dispEmail')) document.getElementById('dispEmail').innerText = user.email;
                 if(document.getElementById('profNama')) document.getElementById('profNama').value = data.nama;
                 if(document.getElementById('profEmail')) document.getElementById('profEmail').value = user.email;
@@ -98,7 +124,6 @@ auth.onAuthStateChanged((user) => {
 
         initCharts();
 
-        // --- Realtime Counters & Charts ---
         db.collection("mahasiswa").onSnapshot(snap => { document.getElementById("countMhs").innerText = snap.size; updateChartData(0, snap.size); });
         db.collection("dosen").onSnapshot(snap => { document.getElementById("countDosen").innerText = snap.size; updateChartData(1, snap.size); });
         db.collection("mata_kuliah").onSnapshot(snap => { document.getElementById("countMatkul").innerText = snap.size; updateChartData(2, snap.size); });
@@ -118,7 +143,7 @@ auth.onAuthStateChanged((user) => {
             });
         }
 
-        // --- A. CRUD MAHASISWA ---
+        // --- CRUD MAHASISWA ---
         const formMhs = document.getElementById("formMhs");
         if(formMhs) {
             formMhs.addEventListener("submit", (e) => {
@@ -144,7 +169,7 @@ auth.onAuthStateChanged((user) => {
             });
         }
 
-        // --- B. CRUD DOSEN ---
+        // --- CRUD DOSEN ---
         const formDosen = document.getElementById("formDosen");
         if(formDosen) {
             formDosen.addEventListener("submit", (e) => {
@@ -169,7 +194,7 @@ auth.onAuthStateChanged((user) => {
             });
         }
 
-        // --- C. CRUD MATKUL ---
+        // --- CRUD MATKUL ---
         const formMatkul = document.getElementById("formMatkul");
         if(formMatkul) {
             formMatkul.addEventListener("submit", (e) => {
@@ -195,13 +220,12 @@ auth.onAuthStateChanged((user) => {
             });
         }
 
-        // --- D. INPUT NILAI (KHUSUS DATA BARU) ---
+        // --- INPUT NILAI ---
         const formNilai = document.getElementById("formNilai");
         if(formNilai) {
             formNilai.addEventListener("submit", (e) => {
                 e.preventDefault();
                 const nilai = parseFloat(document.getElementById("inpNilai").value);
-                
                 db.collection("nilai_mahasiswa").add({
                     nama: document.getElementById("inpNama").value,
                     nim: document.getElementById("inpNim").value,
@@ -214,14 +238,12 @@ auth.onAuthStateChanged((user) => {
             });
         }
 
-        // --- E. EDIT NILAI (UPDATE - HALAMAN TERPISAH) ---
+        // --- EDIT NILAI ---
         const formEditNilai = document.getElementById("formEditNilai");
         if(formEditNilai) {
             formEditNilai.addEventListener("submit", (e) => {
                 e.preventDefault();
                 const nilai = parseFloat(document.getElementById("editNilai").value);
-                
-                // Ambil Nama/NIM dari field yang (mungkin) sudah diubah via dropdown
                 db.collection("nilai_mahasiswa").doc(idEdit).update({
                     nama: document.getElementById("editNama").value,
                     nim: document.getElementById("editNim").value,
@@ -230,44 +252,31 @@ auth.onAuthStateChanged((user) => {
                     nilai: nilai,
                     status: nilai >= 60 ? "Lulus" : "Tidak Lulus",
                 }).then(() => { 
-                    Swal.fire('Berhasil', 'Data Diperbarui', 'success')
-                        .then(() => { showPage('view'); });
+                    Swal.fire('Berhasil', 'Data Diperbarui', 'success').then(() => { showPage('view'); });
                 });
             });
         }
 
-        // --- F. VIEW NILAI (MODERN BADGES) ---
+        // --- VIEW NILAI ---
         db.collection("nilai_mahasiswa").orderBy("timestamp", "desc").onSnapshot(snap => {
             let html = ""; let no=1;
             snap.forEach(doc => {
                 let d = doc.data();
-                
                 let statusBadge = d.status === "Lulus" 
                     ? `<span class="badge-status status-lulus"><i class="fas fa-check me-1"></i>Lulus</span>` 
                     : `<span class="badge-status status-gagal"><i class="fas fa-times me-1"></i>Gagal</span>`;
-                
                 let namaDosen = d.dosen ? d.dosen : "-";
-                
                 html += `<tr>
-                    <td>${no++}</td>
-                    <td class="fw-bold text-dark">${d.nama}</td>
-                    <td class="text-muted">${d.nim}</td>
-                    <td>${d.matkul}</td>
-                    <td>${namaDosen}</td>
-                    <td class="text-center fw-bold">${d.nilai}</td>
-                    <td class="text-center">${statusBadge}</td>
-                    <td class="text-center">
-                        <button class="btn btn-sm btn-warning" onclick="editNilai('${doc.id}', '${d.nama}', '${d.nim}', '${d.matkul}', '${d.dosen}', '${d.nilai}')"><i class="fas fa-edit text-white"></i></button>
-                        <button class="btn btn-sm btn-danger" onclick="hapus('${doc.id}', 'nilai_mahasiswa')"><i class="fas fa-trash"></i></button>
-                    </td>
+                    <td>${no++}</td><td class="fw-bold text-dark">${d.nama}</td><td class="text-muted">${d.nim}</td><td>${d.matkul}</td><td>${namaDosen}</td>
+                    <td class="text-center fw-bold">${d.nilai}</td><td class="text-center">${statusBadge}</td>
+                    <td class="text-center"><button class="btn btn-sm btn-warning" onclick="editNilai('${doc.id}', '${d.nama}', '${d.nim}', '${d.matkul}', '${d.dosen}', '${d.nilai}')"><i class="fas fa-edit text-white"></i></button>
+                    <button class="btn btn-sm btn-danger" onclick="hapus('${doc.id}', 'nilai_mahasiswa')"><i class="fas fa-trash"></i></button></td>
                 </tr>`;
             });
             document.getElementById("tabelNilai").innerHTML = html;
         });
 
-        // --- G. SINKRONISASI DROPDOWN (INPUT & EDIT) ---
-        
-        // 1. Matkul
+        // --- DROPDOWN SYNC ---
         db.collection("mata_kuliah").orderBy("nama_mk", "asc").onSnapshot(snap => {
             let html = '<option value="">-- Pilih Mata Kuliah --</option>';
             snap.forEach(doc => { let d=doc.data(); html += `<option value="${d.nama_mk}">${d.nama_mk} (${d.kode_mk})</option>`; });
@@ -275,7 +284,6 @@ auth.onAuthStateChanged((user) => {
             if(document.getElementById("editMatkul")) document.getElementById("editMatkul").innerHTML = html;
         });
 
-        // 2. Dosen
         db.collection("dosen").orderBy("nama", "asc").onSnapshot(snap => {
             let html = '<option value="">-- Pilih Dosen --</option>';
             snap.forEach(doc => { let d=doc.data(); html += `<option value="${d.nama}">${d.nama}</option>`; });
@@ -283,10 +291,8 @@ auth.onAuthStateChanged((user) => {
             if(document.getElementById("editDosen")) document.getElementById("editDosen").innerHTML = html;
         });
 
-        // 3. Mahasiswa (Untuk Input & Edit)
         const selectMhsInput = document.getElementById("pilihMhs");
         const selectMhsEdit = document.getElementById("editPilihMhs");
-
         db.collection("mahasiswa").orderBy("nama", "asc").onSnapshot(snap => {
             let html = '<option value="">-- Pilih Mahasiswa --</option>';
             snap.forEach(doc => {
@@ -298,7 +304,6 @@ auth.onAuthStateChanged((user) => {
             if(selectMhsEdit) selectMhsEdit.innerHTML = html;
         });
 
-        // Event Listener Dropdown Input
         if(selectMhsInput) {
             selectMhsInput.addEventListener("change", function() {
                 const id = this.value; 
@@ -311,7 +316,6 @@ auth.onAuthStateChanged((user) => {
             });
         }
 
-        // Event Listener Dropdown Edit
         if(selectMhsEdit) {
             selectMhsEdit.addEventListener("change", function() {
                 const id = this.value; 
@@ -326,7 +330,7 @@ auth.onAuthStateChanged((user) => {
 });
 
 // ==========================================
-// 5. HELPER FUNCTIONS
+// HELPER FUNCTIONS
 // ==========================================
 window.editMhs = function(id, nama, nim, jurusan) {
     idEdit = id;
@@ -351,7 +355,7 @@ window.editNilai = function(id, nama, nim, matkul, dosen, nilai) {
     document.getElementById("editNama").value = nama; document.getElementById("editNim").value = nim;
     document.getElementById("editMatkul").value = matkul; document.getElementById("editDosen").value = dosen;
     document.getElementById("editNilai").value = nilai;
-    document.getElementById("editPilihMhs").value = ""; // Reset dropdown edit
+    document.getElementById("editPilihMhs").value = ""; 
     showPage('edit-nilai');
 }
 window.resetForm = function(type) {
