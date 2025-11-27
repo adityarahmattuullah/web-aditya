@@ -7,7 +7,7 @@ body { background-color: #f8f9fd; font-family: "Poppins", "Segoe UI", sans-serif
 /* =========================================
    2. SIDEBAR
    ========================================= */
-.sidebar { width: 250px; background-color: #0011ff; height: 100vh; position: fixed; top: 0; left: 0; padding: 30px 0; display: flex; flex-direction: column; align-items: center; z-index: 1000; box-shadow: 4px 0 10px rgba(0,0,0,0.1); }
+.sidebar { width: 250px; background-color: #0011ff; height: 100vh; position: fixed; top: 0; left: 0; padding: 30px 0; display: flex; flex-direction: column; align-items: center; z-index: 1000; box-shadow: 4px 0 10px rgba(0,0,0,0.1); transition: all 0.3s ease; }
 .sidebar h3 { color: #fff; font-weight: 700; font-size: 22px; text-align: center; margin-bottom: 40px; letter-spacing: 1px; }
 .sidebar .menu-btn { width: 85%; padding: 12px 18px; margin: 6px 0; border-radius: 8px; border: none; background: transparent; color: #d1d7e0; font-size: 15px; text-align: left; cursor: pointer; transition: 0.25s; display: flex; align-items: center; }
 .sidebar .menu-btn i { width: 25px; }
@@ -17,7 +17,7 @@ body { background-color: #f8f9fd; font-family: "Poppins", "Segoe UI", sans-serif
 /* =========================================
    3. TOP NAVBAR & PROFILE
    ========================================= */
-.top-navbar { background-color: #0011ff; height: 70px; display: flex; align-items: center; justify-content: space-between; padding: 0 30px; margin-left: 250px; color: white; box-shadow: 0 2px 10px rgba(0,0,0,0.1); position: sticky; top: 0; z-index: 999; }
+.top-navbar { background-color: #0011ff; height: 70px; display: flex; align-items: center; justify-content: space-between; padding: 0 30px; margin-left: 250px; color: white; box-shadow: 0 2px 10px rgba(0,0,0,0.1); position: sticky; top: 0; z-index: 999; transition: all 0.3s ease; }
 .brand-text { font-size: 20px; font-weight: 700; text-transform: uppercase; }
 .profile-avatar { width: 35px; height: 35px; background: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: #0011ff; }
 .user-profile { cursor: pointer; transition: opacity 0.3s; padding: 5px 10px; border-radius: 8px; }
@@ -30,7 +30,7 @@ body { background-color: #f8f9fd; font-family: "Poppins", "Segoe UI", sans-serif
 /* =========================================
    4. CONTENT & CARDS
    ========================================= */
-.content { margin-left: 250px; padding: 30px 40px; min-height: 100vh; }
+.content { margin-left: 250px; padding: 30px 40px; min-height: 100vh; transition: all 0.3s ease; }
 .page-title { font-size: 26px; font-weight: 700; color: #1a2c4e; margin-bottom: 25px; border-bottom: 3px solid #006aff; display: inline-block; padding-bottom: 5px; }
 .card-custom { background: #ffffff; border-radius: 16px; padding: 35px; border: none; box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05); transition: transform 0.3s ease; }
 .card-custom:hover { transform: translateY(-5px); }
@@ -51,16 +51,10 @@ label { font-size: 13px; font-weight: 600; color: #6c757d; margin-bottom: 8px; t
 .form-control:focus, .form-select:focus { background-color: #fff; border-color: #006aff; box-shadow: 0 0 0 4px rgba(0, 106, 255, 0.1); }
 .btn-save { background: linear-gradient(to right, #006aff, #004ecc); border: none; width: 100%; padding: 12px; border-radius: 8px; font-weight: 600; color: white; margin-top: 15px; cursor: pointer; transition: 0.3s; }
 .btn-save:hover { transform: translateY(-2px); box-shadow: 0 5px 15px rgba(0, 78, 204, 0.3); }
-
-/* Tombol Batal Edit Custom (BARU) */
 .btn-cancel { background-color: #fff; color: #6c757d; border: 1px solid #dee2e6; padding: 8px 20px; border-radius: 8px; font-size: 13px; font-weight: 600; cursor: pointer; transition: 0.2s; display: inline-flex; align-items: center; gap: 8px; }
 .btn-cancel:hover { background-color: #f8f9fa; color: #dc3545; border-color: #dc3545; transform: translateY(-2px); box-shadow: 0 4px 10px rgba(220, 53, 69, 0.1); }
-
-/* Tombol Aksi Tabel */
 .btn-sm { width: 32px; height: 32px; border-radius: 50%; padding: 0; display: inline-flex; align-items: center; justify-content: center; margin: 0 3px; transition: transform 0.2s; }
 .btn-sm:hover { transform: scale(1.1); }
-
-/* Table Box */
 .table-box { background: white; border-radius: 16px; padding: 0; box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05); overflow: hidden; border: 1px solid #eaecf0; }
 table { margin-bottom: 0 !important; width: 100%; }
 thead tr { background: linear-gradient(90deg, #006aff, #004ecc) !important; }
@@ -92,14 +86,23 @@ tbody td { padding: 18px !important; font-size: 14px; color: #344767; border-bot
 .toggle-password { position: absolute; right: 15px; top: 50%; transform: translateY(-50%); cursor: pointer; color: #888; z-index: 10; }
 
 /* =========================================
-   7. RESPONSIVE
+   7. RESPONSIVE (MOBILE) - FIXED
    ========================================= */
 @media (max-width: 991px) {
-  .sidebar { width: 100%; height: auto; position: relative; padding: 15px 0; }
+  .sidebar { left: -250px; } /* Hide sidebar initially */
+  .sidebar.active { left: 0; } /* Slide in */
   .top-navbar { margin-left: 0; width: 100%; padding: 0 20px; }
   .content { margin-left: 0; padding: 20px; }
   .dashboard-cards { grid-template-columns: 1fr; }
+  
+  /* Show hamburger menu on mobile */
+  #menu-toggle { display: block !important; }
 }
-.content-section { display: none; animation: fadeIn 0.4s ease-in-out; }
-.content-section.active { display: block; }
-@keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+/* Overlay for Mobile Menu */
+#overlay {
+    position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+    background: rgba(0,0,0,0.5); z-index: 999;
+    display: none; /* Hidden by default */
+}
+#overlay.active { display: block; }
